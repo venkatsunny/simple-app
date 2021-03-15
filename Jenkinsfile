@@ -3,38 +3,27 @@ pipeline {
     tools {
         maven 'maven3'
     }
-    options {
-        buildDiscarder logRotator(daysToKeepStr: '5', numToKeepStr: '7')
-    }
     stages{
         stage('Build'){
             steps{
                  sh script: 'mvn clean package'
-                 archiveArtifacts artifacts: 'target/*.war', onlyIfSuccessful: true
             }
         }
         stage('Upload War To Nexus'){
             steps{
-                script{
-
-                    def mavenPom = readMavenPom file: 'pom.xml'
-                    def nexusRepoName = mavenPom.version.endsWith("SNAPSHOT") ? "simpleapp-snapshot" : "simpleapp-release"
-                    nexusArtifactUploader artifacts: [
-                        [
-                            artifactId: 'simple-app', 
-                            classifier: '', 
-                            file: "target/simple-app-${mavenPom.version}.war", 
-                            type: 'war'
-                        ]
+               nexusArtifactUploader artifacts: [
+                   [artifactId: 'simple-app',
+                    classifier: '', 
+                    file: 'target/simple-app-3.0.0-SNAPSHOT.war', 
+                    type: 'war']
                     ], 
-                    credentialsId: 'nexus3', 
+                    credentialsId: '38323a4e-be61-46f8-906f-04b3418f3c89', 
                     groupId: 'in.javahome', 
-                    nexusUrl: '172.31.15.204:8081', 
+                    nexusUrl: '3.238.29.93:8081', 
                     nexusVersion: 'nexus3', 
                     protocol: 'http', 
-                    repository: nexusRepoName, 
-                    version: "${mavenPom.version}"
-                    }
+                    repository: 'simpleapp-release', 
+                    version: '3.0.0-SNAPSHOT'
             }
         }
     }
